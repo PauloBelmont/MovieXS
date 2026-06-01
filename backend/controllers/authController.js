@@ -3,8 +3,9 @@
 //Bibliotecas
 const bcrypt = require("bcryptjs"); //Cifra
 const jwt = require("jsonwebtoken"); //Funções de assinatura e validação do JWT
+const RefreshToken = require("../models/RefreshToken");
 
-const {User} = require("../models/Schemas");
+const { User } = require("../models/Schemas");
 
 const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
@@ -54,7 +55,13 @@ exports.login = async (req, res) => {
             refreshTokenSecret
         );
 
-        refreshTokens.push(refreshToken);
+        // Salvar em DB (7 dias de expiração)
+        await RefreshToken.create({
+            userId: user._id,
+            token: refreshToken,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        });
+
         res.json({ accessToken, refreshToken });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -62,13 +69,17 @@ exports.login = async (req, res) => {
 };
 
 //Atualização de token JWT
-exports.refreshToken = (req, res) => {
+exports.refreshToken = async (req, res) => {
     const { token } = req.body;
-    if (!token || !refreshTokens.includes(token)) return res.status(403).json({ message: 'Token inválido ou não encontrado.' });
+    const refreshToken = await RefreshToken.findOne({ token });
+
+    if (!refreshToken || refreshToken.revokedAt) {
+        return res.status(403).json({ message: 'Token inválido ou não encontrado.' });
+    }
 
     jwt.verify(token, refreshTokenSecret, (err, user) => {
         if (err) return res.status(403).json({ message: 'Erro ao verificar o refresh token.' });
-        
+
         // Se o refreshToken for válido, gere um novo accessToken
         const newAccessToken = jwt.sign(
             { id: user.id, username: user.username },
@@ -80,22 +91,24 @@ exports.refreshToken = (req, res) => {
 };
 
 //Logout
-exports.logout = (req, res) => {
+//Logout
+exports.logout = async (req, res) => {
     try {
         const { token } = req.body;
 
-        // Verifica se o token está na lista
-        if (!refreshTokens.includes(token)) {
-            return res.status(400).json({ message: 'Token não encontrado na lista.' });
+        // Marcar token como revogado
+        const result = await RefreshToken.updateOne(
+            { token },
+            { revokedAt: new Date() }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(400).json({ message: 'Token não encontrado.' });
         }
 
-        // Remove o token da lista
-        refreshTokens = refreshTokens.filter((t) => t !== token);
-
-        // Responde com status 204 (sem conteúdo)
         res.sendStatus(204);
     } catch (error) {
-        console.error('Erro no logout:', error);  // Log de erro
+        console.error('Erro no logout:', error);
         res.status(500).json({ message: 'Erro no servidor ao tentar fazer logout.' });
     }
 };
