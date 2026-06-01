@@ -91,22 +91,24 @@ exports.refreshToken = async (req, res) => {
 };
 
 //Logout
-exports.logout = (req, res) => {
+//Logout
+exports.logout = async (req, res) => {
     try {
         const { token } = req.body;
 
-        // Verifica se o token está na lista
-        if (!refreshTokens.includes(token)) {
-            return res.status(400).json({ message: 'Token não encontrado na lista.' });
+        // Marcar token como revogado
+        const result = await RefreshToken.updateOne(
+            { token },
+            { revokedAt: new Date() }
+        );
+
+        if (result.modifiedCount === 0) {
+            return res.status(400).json({ message: 'Token não encontrado.' });
         }
 
-        // Remove o token da lista
-        refreshTokens = refreshTokens.filter((t) => t !== token);
-
-        // Responde com status 204 (sem conteúdo)
         res.sendStatus(204);
     } catch (error) {
-        console.error('Erro no logout:', error);  // Log de erro
+        console.error('Erro no logout:', error);
         res.status(500).json({ message: 'Erro no servidor ao tentar fazer logout.' });
     }
 };
