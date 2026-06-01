@@ -3,8 +3,9 @@
 //Bibliotecas
 const bcrypt = require("bcryptjs"); //Cifra
 const jwt = require("jsonwebtoken"); //Funções de assinatura e validação do JWT
+const RefreshToken = require("../models/RefreshToken");
 
-const {User} = require("../models/Schemas");
+const { User } = require("../models/Schemas");
 
 const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
@@ -54,7 +55,13 @@ exports.login = async (req, res) => {
             refreshTokenSecret
         );
 
-        refreshTokens.push(refreshToken);
+        // Salvar em DB (7 dias de expiração)
+        await RefreshToken.create({
+            userId: user._id,
+            token: refreshToken,
+            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        });
+
         res.json({ accessToken, refreshToken });
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -68,7 +75,7 @@ exports.refreshToken = (req, res) => {
 
     jwt.verify(token, refreshTokenSecret, (err, user) => {
         if (err) return res.status(403).json({ message: 'Erro ao verificar o refresh token.' });
-        
+
         // Se o refreshToken for válido, gere um novo accessToken
         const newAccessToken = jwt.sign(
             { id: user.id, username: user.username },
