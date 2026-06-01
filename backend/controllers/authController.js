@@ -69,9 +69,13 @@ exports.login = async (req, res) => {
 };
 
 //Atualização de token JWT
-exports.refreshToken = (req, res) => {
+exports.refreshToken = async (req, res) => {
     const { token } = req.body;
-    if (!token || !refreshTokens.includes(token)) return res.status(403).json({ message: 'Token inválido ou não encontrado.' });
+    const refreshToken = await RefreshToken.findOne({ token });
+
+    if (!refreshToken || refreshToken.revokedAt) {
+        return res.status(403).json({ message: 'Token inválido ou não encontrado.' });
+    }
 
     jwt.verify(token, refreshTokenSecret, (err, user) => {
         if (err) return res.status(403).json({ message: 'Erro ao verificar o refresh token.' });
