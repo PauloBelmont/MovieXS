@@ -24,18 +24,18 @@ Este projeto foi desenvolvido como parte dos requisitos para a obtenção parcia
 5 - No primeiro terminal, navegue até a pasta do backend e instale as dependências
    ```bash
       cd backend
-      npm install
+      yarn install
    ```
 6 - No segundo terminal, navegue até a pasta do frontend e instale as dependências
    ```bash
       cd frontend
-      npm install
+      yarn install
    ```
 7 - Ao acabar a instalação no primeiro terminal, execute o backend
 ```bash
-      npm start
+      yarn start
    ```
 8 - Ao acabar a instalação no segundo terminal, execute o frontend
 ```bash
-      npm run dev
+      yarn dev
    ```

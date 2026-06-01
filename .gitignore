@@ -27,3 +27,7 @@ yarn-error.log*
 
 req.rest
 .vscode
+
+# Documentation (temporarily local, not version controlled)
+/docs
+*.drawio
