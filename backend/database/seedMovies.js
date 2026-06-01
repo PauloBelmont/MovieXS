@@ -12,7 +12,7 @@ connectDB();
 const API_KEY = process.env.TMDB_API_KEY;
 const BASE_URL = 'https://api.themoviedb.org/3';
 const GENRE_LIST_URL = 'https://api.themoviedb.org/3/genre/movie/list';
-const MAX_PAGES = 250;
+const MAX_PAGES = 20;
 const DELAY_BETWEEN_REQUESTS = 20;
 
 let genreTranslations = {};

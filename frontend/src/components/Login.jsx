@@ -18,7 +18,7 @@ function Login() {
       alert("Login bem-sucedido!");
       navigate("/user/home"); // Redireciona após o estado ser atualizado
     } catch (error) {
-      alert("Erro ao fazer login");
+  console.error("Falha na requisição:", error);
     }
   };
 

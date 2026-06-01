@@ -42,7 +42,7 @@ function Register() {
       login(response.data.accessToken);
       navigate("/user/home"); // Redireciona para a home do usuário
     } catch (error) {
-      alert("Erro ao registrar");
+  console.error("Falha na requisição:", error);
     }
   };
 
