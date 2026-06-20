@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Button } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosClient from "../api/axiosClient";
+import AuthContext from "../context/AuthContext";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
@@ -63,6 +64,7 @@ function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { logout } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchRecommendations = async () => {
@@ -73,9 +75,8 @@ function Home() {
           return;
         }
 
-        const response = await axios.get("http://localhost:5000/api/recommendations/all", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        // axiosClient já injeta o Authorization header e renova o token sozinho se expirar
+        const response = await axiosClient.get("/recommendations/all");
 
         console.log("🔍 Resposta da API:", response.data);
 
@@ -95,8 +96,8 @@ function Home() {
     fetchRecommendations();
   }, [navigate]);
 
-  const handleLogout = () => {
-    localStorage.clear();
+  const handleLogout = async () => {
+    await logout(); // Revoga o refresh token no backend e limpa o estado local
     navigate("/login");
   };
 

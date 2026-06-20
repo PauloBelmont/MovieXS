@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosClient from "../api/axiosClient";
 import AuthContext from "../context/AuthContext";
 import "../styles/global.css";
 import {
@@ -13,6 +13,7 @@ import {
 
 function Register() {
   const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
@@ -31,18 +32,18 @@ function Register() {
     }
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/register", {
+      const response = await axiosClient.post("/auth/register", {
         username,
         password,
+        ...(email && { email }),
       });
 
-      alert("Registro bem-sucedido!");
-
-      // Após registro, faz login automático
-      login(response.data.accessToken);
+      // Após registro, faz login automático (backend já retorna o par de tokens)
+      login(response.data.accessToken, response.data.refreshToken);
       navigate("/user/home"); // Redireciona para a home do usuário
     } catch (error) {
-  console.error("Falha na requisição:", error);
+      console.error("Falha na requisição:", error);
+      alert(error.response?.data?.message || "Falha no registro.");
     }
   };
 
@@ -60,6 +61,15 @@ function Register() {
             variant="outlined"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            label="E-mail (opcional)"
+            variant="outlined"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <TextField
             fullWidth

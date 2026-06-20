@@ -1,5 +1,10 @@
 //Arquivo principal do backend
+//Services
 const tfidfService = require('./services/tfidfService');
+const { initializeJwtSecrets } = require('./services/jwtInitializer');
+
+// Gerar secrets se não existirem
+initializeJwtSecrets();
 
 require("dotenv").config();
 const express = require("express");
