@@ -4,11 +4,12 @@
 const bcrypt = require("bcryptjs"); //Cifra
 const jwt = require("jsonwebtoken"); //Funções de assinatura e validação do JWT
 const RefreshToken = require("../models/RefreshToken");
+const config = require("../config/env");
 
 const { User } = require("../models/Schemas");
 
-const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+const accessTokenSecret = config.jwt.accessSecret;
+const refreshTokenSecret = config.jwt.refreshSecret;
 const REFRESH_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 dias
 
 //Gera um par access/refresh token e persiste o refresh token no Mongo
