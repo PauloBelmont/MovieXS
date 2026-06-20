@@ -34,6 +34,9 @@ const ratingSchema = new Schema({
 const userSchema = new Schema({
     username: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    // E-mail opcional por ora (usuários de seed antigos não têm); sparse permite múltiplos null sem violar o unique
+    email: { type: String, unique: true, sparse: true, lowercase: true, trim: true },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
 });
 
 //Modelos

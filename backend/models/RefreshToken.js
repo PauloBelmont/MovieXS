@@ -16,13 +16,18 @@ const refreshTokenSchema = new Schema({
     required: true,
     index: true
   },
-  revokedAt: { 
-    type: Date, 
+  revokedAt: {
+    type: Date,
     default: null
   },
-  createdAt: { 
-    type: Date, 
-    default: Date.now 
+  // Token que substituiu este (preenchido na rotação), usado para rastrear a cadeia
+  replacedByToken: {
+    type: String,
+    default: null
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
