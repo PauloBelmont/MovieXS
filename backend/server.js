@@ -1,12 +1,14 @@
 //Arquivo principal do backend
-//Services
-const tfidfService = require('./services/tfidfService');
-const { initializeJwtSecrets } = require('./services/jwtInitializer');
 
-// Gerar secrets se não existirem
+// Gerar secrets JWT se não existirem — precisa rodar ANTES da validação de config,
+// para que config/env.js já encontre ACCESS_TOKEN_SECRET/REFRESH_TOKEN_SECRET preenchidos.
+const { initializeJwtSecrets } = require('./services/jwtInitializer');
 initializeJwtSecrets();
 
-require("dotenv").config();
+const config = require('./config/env'); // carrega e valida todas as variáveis de ambiente
+
+//Services
+const tfidfService = require('./services/tfidfService');
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./database/database");
@@ -20,7 +22,7 @@ const reviewRoutes = require("./routes/reviewRoutes");
 
 //Aplicativo Express
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = config.port;
 connectDB();
 
 //Inicializa o serviço de recomendação TD-IDF
