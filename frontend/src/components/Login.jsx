@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosClient from "../api/axiosClient";
 import "../styles/global.css";
 import { Card, CardContent, Typography, TextField, Button } from "@mui/material";
 import AuthContext from "../context/AuthContext";
@@ -13,12 +13,12 @@ function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/login", { username, password });
-      login(response.data.accessToken); // Usa a função de login do contexto
-      alert("Login bem-sucedido!");
+      const response = await axiosClient.post("/auth/login", { username, password });
+      login(response.data.accessToken, response.data.refreshToken); // Usa a função de login do contexto
       navigate("/user/home"); // Redireciona após o estado ser atualizado
     } catch (error) {
-  console.error("Falha na requisição:", error);
+      console.error("Falha na requisição:", error);
+      alert(error.response?.data?.message || "Falha no login.");
     }
   };
 
